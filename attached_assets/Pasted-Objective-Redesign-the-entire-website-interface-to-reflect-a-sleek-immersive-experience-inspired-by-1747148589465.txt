@@ -1,0 +1,106 @@
+Objective
+Redesign the entire website interface to reflect a sleek, immersive experience inspired by Hawk by Framer. Use the company branding palette:
+
+Primary: Deep Royal Navy Blue (#0a0f2c)
+
+Secondary: Rich Burgundy Red (#4a1c2f)
+
+Accent/Highlight: Rich Gold Metallic (#cba135)
+
+Layout & Interaction Design Features to Implement:
+
+Landing Page Layout (Homepage):
+
+Full-screen hero section with large animated headline (scale/fade on load)
+
+Scroll-triggered section reveals using smooth vertical transitions (like Hawk)
+
+Add a dark overlay blur background behind text to highlight headings
+
+Animated Navigation Bar:
+
+Sticky nav bar with:
+
+Left-aligned logo
+
+Right-aligned menu links: About, Courses, Book Now, Gallery, Login
+
+Dropdown menus with hover/fade-in animation
+
+Mobile: collapsible hamburger menu with smooth slideout nav
+
+Motion Design:
+
+Page elements (headings, cards, buttons) should animate in using opacity + transform combos
+
+Use friction-based transitions (ease-in-out, smooth deceleration)
+
+Hero text: split text fade or slide reveal like in Hawk
+
+Color Scheme and Backgrounds:
+
+Background: deep navy with subtle burgundy gradients
+
+Button/links: rich gold on hover glow effect
+
+Font: Elegant serif for headings, modern sans-serif for body (Google Fonts: Playfair Display + Inter)
+
+Buttons and Call-to-Action Elements:
+
+Buttons with animated border or glow on hover (in gold)
+
+Use layered hover effects (gold glow + upward movement)
+
+CTA blocks should feel luxurious and cinematic
+
+Gallery Section:
+
+Masonry or grid layout with carousel slider
+
+Modal Lightbox view on click
+
+Images fade in on scroll
+
+Optional: add gallery cycle auto-play with pause-on-hover
+
+Courses Section:
+
+Two large cards: Basic Course, Pro Course with animated icons
+
+Add scroll-triggered progress bars or reveal-on-scroll lesson summaries
+
+About Us Pages (for 3 Brands):
+
+Header image with parallax scroll effect
+
+Gold divider lines between sections
+
+Bio/team blocks fade in with smooth motion
+
+Footer:
+
+Elegant multi-column layout
+
+Social icons in gold
+
+Contact info + newsletter signup form
+
+Theme Consistency:
+
+Use lots of space and contrast
+
+Avoid harsh whites; use soft grays or semi-transparent overlays
+
+Use gradients and shadows subtly, with high polish
+
+Code Considerations:
+
+Use HTML/CSS/JS (Vanilla or add GSAP/Framer Motion if needed)
+
+Structure assets into public/, styles/, scripts/, and components/
+
+Use CSS variables for color palette
+
+Keep all transitions smooth and GPU-optimized
+
+Add comments to explain major visual sections

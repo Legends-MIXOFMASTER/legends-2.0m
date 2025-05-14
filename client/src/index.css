@@ -1,0 +1,82 @@
+.blur-overlay {
+  @apply absolute inset-0 backdrop-blur-sm bg-primary-50; /* Use bg-primary-50 for opacity */
+}@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #0a0f2c;
+  --secondary: #4a1c2f;
+  --accent: #cba135;
+}
+
+@layer base {
+  body {
+    @apply bg-primary text-white font-['Inter'];
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-['Playfair_Display'];
+  }
+}
+
+@layer components {
+  .hero-heading {
+    @apply text-6xl md:text-8xl font-playfair font-bold opacity-0 transform translate-y-4;
+    animation: fadeUp 1s ease-out forwards;
+  }
+
+  .nav-link {
+    @apply relative overflow-hidden;
+  }
+
+  .nav-link::after {
+    @apply content-[''] absolute bottom-0 left-0 w-0 h-0.5 bg-accent;
+    transition: width 0.3s ease;
+  }
+
+  .nav-link:hover::after {
+    @apply w-full;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 bg-accent text-primary font-medium rounded-md transform transition-all duration-300 hover:scale-105 hover:shadow-[0_0_15px_rgba(203,161,53,0.5)];
+  }
+
+  .section-reveal {
+    @apply opacity-0 transform translate-y-10 transition-all duration-700;
+  }
+
+  .section-reveal.visible {
+    @apply opacity-100 translate-y-0;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.blur-overlay {
+  @apply absolute inset-0 backdrop-blur-sm;
+  background-color: rgba(var(--primary), 0.5);
+}

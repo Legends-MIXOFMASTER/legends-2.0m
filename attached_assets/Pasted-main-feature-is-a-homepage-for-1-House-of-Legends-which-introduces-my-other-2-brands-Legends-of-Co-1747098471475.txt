@@ -1,0 +1,41 @@
+main feature is a homepage for 
+1. House of Legends which introduces my other 2 brands Legends of Cocktails and Namibian Bar Masters.
+2. i want each page to have a section where people can book (House of Legends events) and hire equipment. then bartenders can register to be freelancers (Legends of Cocktails) and they can also book staff and experiences too. sign up for classes and test them selves on (namibian Bar masters) online short course like Barsmarts.com and sign up for NBMs 6 week programs, and clients who own lodges and hotels and restuarants can book for 5 day courses as well.
+3. About services by each brand:
+House of Legends events - Cocktail & Beverage Services
+1. Signature Cocktail Experiences
+Custom-crafted cocktails and themed menus for private or corporate events, with full setup and professional bartenders.
+
+2. Pre-Mixed Cocktails & Bottled Batches
+Handmade, ready-to-serve bottled cocktails — perfect for lodges, events, and home entertaining.
+
+3. Guest Bartender & Brand Collaboration
+Elevate your venue or activation with a professional guest shift by our founder or a certified bartender from our network.
+
+Legends of Cocktails - Hospitality Services
+4. Mobile Bar Setup & Staffing
+Complete bar service setup for events, with equipment, glassware, and skilled bar staff. Ideal for venues with no fixed bar.
+
+5. Beverage & Menu Consulting
+Tailored consulting for hotels, lodges, and restaurants looking to upgrade their drink service, staff knowledge, or cocktail menus.
+
+6. Onsite Staff Training for Lodges
+Bring hospitality excellence to your property — we train front-of-house teams in mixology, drink service, and guest interaction.
+
+7. Equipment Supply & Bar Setup Support
+We help design, source, and set up professional bar stations for new or existing hospitality properties.
+
+Namibian Bar Masters - Training & Development
+8. Bartender Training & Certification
+Join the Namibian Bar Masters Training Program — a 6-week hands-on course for beginners and working bartenders.
+
+9. Pro Level Courses (Coming Soon)
+Advanced training in spirits, flair bartending, and beverage design for professionals looking to elevate their careers.
+
+Monthly classes
+
+Lodge and hotel training packages 
+
+Bartenders database
+
+4. The page must be a great flow for all brands and colors are set by the brands logos

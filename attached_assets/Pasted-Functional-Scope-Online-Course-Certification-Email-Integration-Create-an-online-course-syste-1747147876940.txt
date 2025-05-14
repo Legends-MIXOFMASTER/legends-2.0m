@@ -1,0 +1,95 @@
+Functional Scope (Online Course + Certification + Email Integration):
+
+Create an online course system for “Namibian Bar Masters” with two course levels:
+
+Basics Course
+
+Pro Level Course
+
+Each course should have:
+
+Interactive modules (placeholder quizzes with radio/select inputs)
+
+Progress tracking (session-based initially, later expandable with DB)
+
+Completion button → triggers backend check
+
+On completion:
+
+Store user completion record in MongoDB (name, email, course level)
+
+Send confirmation email using Nodemailer (use placeholder for SMTP)
+
+If user completes both levels, auto-send a downloadable PDF certificate
+
+Authentication:
+
+Add login/register system (email/password)
+
+Users must be logged in to access and complete courses
+
+Email Verification:
+
+Upon sign-up, send a verification email (simulate for now)
+
+Only allow course access if email is verified
+
+Certificate System:
+
+Design a simple certificate template using HTML/CSS
+
+Generate dynamic certificates with user name and course levels completed
+
+Trigger PDF generation using a library like html-pdf or puppeteer
+
+Email the certificate on completion of both levels
+
+Design Scope (UI/UX Upgrade + Visual Overhaul):
+
+Redesign entire site with this aesthetic direction:
+
+A sleek, elegant design theme: black + rich gold + charcoal gray
+
+Use serif + elegant modern fonts
+
+Button hover animations: glowing gold or underline slides
+
+Transitions and scroll effects like Framer-style templates
+
+Gallery: animated carousel with smooth fade or slide effects
+
+Homepage layout (Evive/SalesRocket inspired):
+
+Hero banner with animated headline text
+
+Floating "Enroll Now" CTA with hover bounce or shine effect
+
+Animated stats or testimonials (fade-in/scroll-up)
+
+Add light/dark theme toggle (optional)
+
+Code + File Management:
+
+Organize code with:
+
+/public → index.html, styles, JS
+
+/views → course pages and certificate view
+
+/routes → auth, course, and certificate APIs
+
+/models → user and progress schemas
+
+Add environment config support:
+
+.env → MONGO_URI, EMAIL_USER, EMAIL_PASS
+
+Set up server.js to include:
+
+Express
+
+MongoDB
+
+Routes for: /api/auth, /api/courses, /api/certificates
+
+Static routing for front-end pages
