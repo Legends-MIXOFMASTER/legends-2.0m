@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Legends</title>
+    <meta name="description" content="Luxury bartending, courses, and events by House Legends. Book, learn, and experience world-class cocktails.">
+    <meta property="og:title" content="House Legends" />
+    <meta property="og:description" content="Luxury bartending, courses, and events by House Legends." />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#ffd700" />
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script defer data-domain="houselegends.com" src="https://plausible.io/js/plausible.js"></script>
+</head>
+<body onkeydown="if(event.key==='Escape'){closeQuizModal();}">>
+    <nav class="navbar" aria-label="Main navigation">
+    <button id="themeToggle" aria-label="Toggle dark/light mode" style="margin-right:1.2em;"><i class="fa fa-moon"></i></button>
+        <div class="nav-logo">House Legends</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li id="dashboardNav" style="display:none;"><a href="dashboard.html">Dashboard</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Services</a>
+                <div class="dropdown-content">
+                    <a href="about-house.html">House of Legends</a>
+                    <a href="about-cocktails.html">Legends of Cocktails</a>
+                    <a href="about-bar.html">Namibian Bar Masters</a>
+                </div>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">About Us</a>
+                <div class="dropdown-content">
+                    <a href="about-house.html">About House of Legends</a>
+                    <a href="about-cocktails.html">About Legends of Cocktails</a>
+                    <a href="about-bar.html">About Namibian Bar Masters</a>
+                </div>
+            </li>
+            <li><a href="#booking">Book Now</a></li>
+            <li><a href="#gallery">Gallery</a></li>
+            <li><a href="#courses">Courses</a></li>
+            <li><a href="#login">Login</a></li>
+        </ul>
+    </nav>
+    <section id="hero" class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Welcome to House Legends</h1>
+            <p class="hero-tagline">Where Legendary Experiences Begin</p>
+            <div class="hero-cta">
+                <a href="#booking" class="btn btn-gold">Book Now</a>
+                <a href="#gallery" class="btn btn-outline">View Gallery</a>
+            </div>
+        </div>
+    </section>
+    <section id="courses" class="section">
+        <h2>Courses & Certification</h2>
+        <div class="courses-list">
+            <div class="course-card" id="courseBasics">
+                <h3>Basics in Bartending</h3>
+                <div class="course-material">
+                    <h4>Course Overview</h4>
+                    <ul>
+                        <li>Introduction to Bartending & IBA Standards</li>
+                        <li>Bar Tools & Glassware</li>
+                        <li>Spirits, Liqueurs, and Mixers</li>
+                        <li>Classic Cocktail Categories (IBA Official List)</li>
+                        <li>Basic Techniques: Stir, Shake, Build, Muddle</li>
+                        <li>Garnishes & Presentation</li>
+                        <li>Responsible Service & Hygiene</li>
+                        <li>Customer Interaction & Bar Etiquette</li>
+                    </ul>
+                    <h4>Sample IBA Cocktails</h4>
+                    <ul>
+                        <li><b>Martini:</b> Gin, Dry Vermouth, Olive/Lemon Twist</li>
+                        <li><b>Margarita:</b> Tequila, Triple Sec, Lime Juice, Salt Rim</li>
+                        <li><b>Negroni:</b> Gin, Campari, Sweet Vermouth, Orange Garnish</li>
+                        <li><b>Daiquiri:</b> White Rum, Lime Juice, Sugar Syrup</li>
+                        <li><b>Old Fashioned:</b> Bourbon, Sugar, Bitters, Orange Peel</li>
+                        <li>...and more from the IBA Official List</li>
+                    </ul>
+                    <h4>Learning Outcomes</h4>
+                    <ul>
+                        <li>Understand key spirits and mixers</li>
+                        <li>Identify and use basic bar tools</li>
+                        <li>Prepare and serve classic cocktails to IBA standards</li>
+                        <li>Apply proper hygiene and responsible service</li>
+                    </ul>
+                </div>
+                <button onclick="enrollCourse('Basics')">Enroll</button>
+                <button onclick="showQuizModal('Basics')">Request Certificate</button>
+            </div>
+            <div class="course-card" id="coursePro">
+                <h3>Pro Level Bartending</h3>
+                <div class="course-material">
+                    <h4>Course Overview</h4>
+                    <ul>
+                        <li>Advanced Mixology & IBA Contemporary Classics</li>
+                        <li>Infusions, Homemade Syrups, and Craft Ingredients</li>
+                        <li>Advanced Techniques: Layering, Flame, Carbonation</li>
+                        <li>Speed, Efficiency, and Flair Bartending</li>
+                        <li>Menu Creation & Signature Cocktails</li>
+                        <li>Event & Volume Service</li>
+                        <li>Bar Management & Inventory</li>
+                        <li>Global Trends & Competitions (IBA World Championships)</li>
+                    </ul>
+                    <h4>Sample IBA Pro Cocktails</h4>
+                    <ul>
+                        <li><b>Espresso Martini:</b> Vodka, Espresso, Coffee Liqueur, Sugar Syrup</li>
+                        <li><b>Mai Tai:</b> White Rum, Dark Rum, Orange Curaçao, Lime, Orgeat</li>
+                        <li><b>Penicillin:</b> Scotch, Lemon Juice, Honey-Ginger Syrup, Islay Scotch Float</li>
+                        <li><b>Bloody Mary:</b> Vodka, Tomato Juice, Lemon, Spices</li>
+                        <li><b>Cosmopolitan:</b> Vodka, Triple Sec, Cranberry, Lime</li>
+                        <li>...and more from the IBA Contemporary Classics</li>
+                    </ul>
+                    <h4>Learning Outcomes</h4>
+                    <ul>
+                        <li>Master advanced cocktail techniques</li>
+                        <li>Create original drinks and bar menus</li>
+                        <li>Manage high-volume service and events</li>
+                        <li>Understand global trends and compete at IBA level</li>
+                    </ul>
+                </div>
+                <button onclick="enrollCourse('Pro')">Enroll</button>
+                <button onclick="showQuizModal('Pro')">Request Certificate</button>
+            </div>
+        </div>
+        <!-- Quiz Modal -->
+        <div id="quizModal" class="modal" style="display:none;">
+            <div class="modal-content" style="background:#232a34;padding:2rem;border-radius:14px;max-width:420px;margin:5vh auto;">
+                <h3 id="quizTitle"></h3>
+                <form id="quizForm">
+                    <div id="quizQuestions"></div>
+                    <button type="submit" class="btn btn-gold" style="margin-top:1rem;">Submit Quiz</button>
+                    <button type="button" onclick="closeQuizModal()" style="margin-left:1rem;">Cancel</button>
+                </form>
+                <div id="quizMsg" style="margin-top:1rem;"></div>
+            </div>
+        </div>
+    </section>
+    <main id="app">
+        <section id="gallery" class="gallery-section">
+            <h2>Gallery</h2>
+            <div class="gallery-grid" id="galleryGrid">
+                <!-- Gallery images will be rendered here by JS -->
+            </div>
+            <button id="uploadBtn">Upload Image</button>
+            <input type="file" id="uploadInput" style="display:none;">
+        </section>
+        <section id="booking" class="booking-section">
+            <h2>Book Your Experience</h2>
+            <form id="bookingForm">
+                <input type="text" name="name" placeholder="Your Name" required />
+                <input type="email" name="email" placeholder="Your Email" required />
+                <input type="tel" name="phone" placeholder="Phone Number" required />
+                <input type="date" name="date" id="bookingDate" required />
+                <select name="service" required>
+                    <option value="">Select Service</option>
+                    <option value="house">House of Legends</option>
+                    <option value="cocktails">Legends of Cocktails</option>
+                    <option value="bar">Namibian Bar Masters</option>
+                </select>
+                <select name="time" id="bookingTime" required>
+                    <option value="">Select Time</option>
+                </select>
+                <button type="submit" class="btn btn-gold" id="bookingSubmit">Book Now</button>
+            </form>
+            <div id="bookingMsg"></div>
+        </section>
+        <section id="login" class="login-section">
+    <h2 id="loginTitle">Login</h2>
+    <form id="loginForm">
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <button type="submit">Login</button>
+        <a href="reset-password.html" id="forgotPasswordLink" style="display:block;margin-top:0.8rem;color:#ffd700;text-align:right;">Forgot password?</a>
+    </form>
+    <form id="registerForm" style="display:none; margin-top:2rem;">
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <button type="submit">Register</button>
+        <button type="button" id="resendVerificationBtn" style="display:none;margin-top:0.5rem;">Resend verification email</button>
+    </form>
+    <button id="toggleAuthMode" style="margin-top:1rem;">Switch to Register</button>
+    <button id="logoutBtn" style="display:none; margin-top:1rem;">Logout</button>
+    <div id="loginMsg"></div>
+</section>
+        <section id="admin-dashboard" style="display:none; margin:2rem 0;">
+            <h2>Admin Dashboard</h2>
+            <div style="margin-bottom:2rem;">
+                <h3>Bookings</h3>
+                <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1rem;">
+                    <div id="adminCalendar" style="min-width:260px;"></div>
+                    <button id="exportBookingsBtn" class="btn btn-gold">Export CSV</button>
+                </div>
+                <div id="calendarDayBookings" style="display:none;margin-bottom:1rem;"></div>
+                <table id="adminBookingsTable" class="admin-table">
+                    <thead>
+                        <tr><th>Date</th><th>Time</th><th>Name</th><th>Service</th><th>Action</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div>
+                <h3>Gallery</h3>
+                <form id="bulkGalleryUploadForm" style="margin-bottom:1rem;display:flex;gap:1rem;align-items:center;">
+                    <input type="file" id="bulkGalleryFiles" multiple accept="image/*" />
+                    <input type="text" id="bulkGalleryCaptions" placeholder="Captions (comma separated)" />
+                    <input type="text" id="bulkGalleryTags" placeholder="Tags (comma separated)" />
+                    <button type="submit" class="btn btn-gold">Bulk Upload</button>
+                </form>
+                <table id="adminGalleryTable" class="admin-table">
+                    <thead>
+                        <tr><th>Preview</th><th>Alt</th><th>Caption</th><th>Tags</th><th>Action</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div>
+                <h3>Course Enrollments</h3>
+                <table id="adminCoursesTable" class="admin-table">
+                    <thead>
+                        <tr><th>Email</th><th>Course</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+        <section id="contact" class="contact-section">
+            <h2>Contact Us</h2>
+            <form id="contactForm" aria-label="Contact form">
+    <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true" /> <!-- Honeypot -->
+                <input type="text" name="name" placeholder="Your Name" required />
+                <input type="email" name="email" placeholder="Your Email" required />
+                <textarea name="message" placeholder="Your Message" required></textarea>
+                <button type="submit" class="btn btn-gold">Send Message</button>
+            </form>
+            <div id="contactMsg"></div>
+        </section>
+        <footer class="luxury-footer">
+            <div class="footer-content">
+                <div class="footer-logo">House Legends</div>
+                <div class="footer-links">
+                    <a href="#hero">Home</a>
+                    <a href="#gallery">Gallery</a>
+                    <a href="#courses">Courses</a>
+                    <a href="#booking">Book Now</a>
+                    <a href="#contact">Contact</a>
+                </div>
+                <div class="footer-socials">
+                    <a href="#"><img src="/assets/instagram.svg" alt="Instagram" /></a>
+                    <a href="#"><img src="/assets/facebook.svg" alt="Facebook" /></a>
+                </div>
+            </div>
+            <div class="footer-bottom">&copy; 2025 House Legends. All rights reserved.</div>
+        </footer>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
