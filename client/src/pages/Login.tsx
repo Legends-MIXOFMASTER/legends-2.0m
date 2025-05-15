@@ -1,14 +1,13 @@
-import { useState, useEffect } from "react";
-import { Link, useLocation } from "wouter";
+import { useState } from "react";
+import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { animations } from '@/utils/animations';
+import type { FC, JSX } from "react";
 
 // Import UI components
 import { Navbar } from "@/components/ui/navbar";
 import { Footer } from "@/components/ui/footer";
-import { Section } from "@/components/ui/section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -17,13 +16,12 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2, LogIn, UserPlus, Eye, EyeOff } from "lucide-react";
 
-// Login form schema
+// Form schemas
 const loginFormSchema = z.object({
   username: z.string().min(3, { message: "Username must be at least 3 characters" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
 
-// Register form schema
 const registerFormSchema = z.object({
   username: z.string().min(3, { message: "Username must be at least 3 characters" }),
   fullName: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -36,19 +34,19 @@ const registerFormSchema = z.object({
   path: ["confirmPassword"],
 });
 
+// Types
 type LoginFormValues = z.infer<typeof loginFormSchema>;
 type RegisterFormValues = z.infer<typeof registerFormSchema>;
 
-export default function Login() {
-  const [activeTab, setActiveTab] = useState<string>("login");
+const Login: FC = (): JSX.Element => {
+  const [activeTab, setActiveTab] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { toast } = useToast();
-  const { login, register: registerUser, error, isAuthenticated } = useAuth();
-  const [location, setLocation] = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const { login, register: registerUser } = useAuth();
+  const [, setLocation] = useLocation();
 
-  // Login form
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -57,7 +55,6 @@ export default function Login() {
     }
   });
 
-  // Registration form
   const registerForm = useForm<RegisterFormValues>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -70,430 +67,248 @@ export default function Login() {
     }
   });
 
-  // Handle login submission
   const onLoginSubmit = async (data: LoginFormValues) => {
-    setIsSubmitting(true);
     try {
+      setIsSubmitting(true);
       await login(data.username, data.password);
-      
-      // Success toast
       toast({
-        title: "Login Successful",
-        description: "Welcome back!",
-        variant: "default"
+        title: "Success",
+        description: "Logged in successfully",
       });
-      
-      // Redirect to dashboard or home
-      setLocation('/dashboard');
-    } catch (err) {
-      // Error handling
-      toast({
-        title: "Login Failed",
-        description: error || "Invalid credentials. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Handle registration submission
-  const onRegisterSubmit = async (data: RegisterFormValues) => {
-    setIsSubmitting(true);
-    try {
-      await registerUser({
-        username: data.username,
-        fullName: data.fullName,
-        email: data.email,
-        password: data.password,
-        userType: data.userType
-      });
-      
-      // Success toast
-      toast({
-        title: "Registration Successful",
-        description: "Your account has been created!",
-        variant: "default"
-      });
-      
-      // Switch to login tab
-      setActiveTab('login');
-    } catch (err) {
-      // Error handling
-      toast({
-        title: "Registration Failed",
-        description: error || "Could not create account. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  useEffect(() => {
-    // Set up page title and meta description
-    document.title = "Login or Register | House of Legends";
-    
-    const metaDesc = document.createElement("meta");
-    metaDesc.name = "description";
-    metaDesc.content = "Log in to your House of Legends account or register for a new account to book services and access exclusive content.";
-    document.head.appendChild(metaDesc);
-    
-    return () => {
-      document.head.removeChild(metaDesc);
-    };
-  }, []);
-  
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
       setLocation("/");
-    }
-  }, [isAuthenticated, setLocation]);
-
-  // Show error message when auth error occurs
-  useEffect(() => {
-    if (error) {
+    } catch (err: unknown) {
+      const error = err as Error;
       toast({
-        title: "Authentication Error",
-        description: error.toString(),
+        title: "Error",
+        description: error.message || "Failed to log in",
         variant: "destructive",
       });
-    }
-  }, [error, toast]);
-
-  const loginForm = useForm<LoginFormValues>({
-    resolver: zodResolver(loginFormSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-    },
-  });
-
-  const registerForm = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerFormSchema),
-    defaultValues: {
-      username: "",
-      fullName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      userType: "client",
-    },
-  });
-
-  const onLoginSubmit = async (values: LoginFormValues) => {
-    try {
-      setIsSubmitting(true);
-      await login(values.username, values.password);
-      
-      toast({
-        title: "Authentication successful",
-        description: "Welcome back! You are now logged in.",
-      });
-    } catch (error) {
-      // Error is handled by the useAuth hook and shown via the error effect
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const onRegisterSubmit = async (values: RegisterFormValues) => {
+  const onRegisterSubmit = async (data: RegisterFormValues) => {
     try {
       setIsSubmitting(true);
-      // Remove confirmPassword before sending to API
-      const { confirmPassword, ...registerData } = values;
-      
-      await registerUser(registerData);
-      
+      await registerUser(data);
       toast({
-        title: "Registration successful",
-        description: "Your account has been created. You are now logged in.",
+        title: "Success",
+        description: "Account created successfully",
       });
-      
-      // Redirect to the registration success page
-      setLocation('/registration-success');
-    } catch (error) {
-      // Error is handled by the useAuth hook and shown via the error effect
+      setActiveTab("login");
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create account",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  // Navigation items for the Navbar
-  const navItems = [
-    { label: "Home", href: "/" },
-    { label: "About", href: "/about" },
-    { label: "Services", href: "/services" },
-    { label: "Book", href: "/#booking" },
-  ];
-
-  // Footer navigation
-  const footerNavigation = [
-    {
-      title: "Company",
-      items: [
-        { label: "About", href: "/about" },
-        { label: "Careers", href: "/careers" },
-        { label: "Contact", href: "/contact" },
-      ],
-    },
-    {
-      title: "Services",
-      items: [
-        { label: "Bar Services", href: "/services/bar-services" },
-        { label: "Mixology Workshops", href: "/services/workshops" },
-        { label: "Menu Design", href: "/services/menu-design" },
-      ],
-    },
-    {
-      title: "Legal",
-      items: [
-        { label: "Privacy Policy", href: "/privacy-policy" },
-        { label: "Terms of Service", href: "/terms" },
-      ],
-    },
-  ];
-
-  // Initialize animations
-  useEffect(() => {
-    const initAnimations = async () => {
-      if (animations.initGSAP) {
-        await animations.initGSAP();
-      }
-      await animations.initSmoothScroll();
-    };
-
-    initAnimations();
-  }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar logo="/images/logo.png" items={navItems} />
-      
-      <main className="flex-grow flex items-center justify-center py-12 bg-light">
-        <div className="container max-w-md mx-auto px-4">
-          <div className="bg-white rounded-xl shadow-card overflow-hidden">
-            <div className="p-8">
-              <h1 className="text-2xl font-display font-bold text-primary mb-6 text-center">Account Access</h1>
-              
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid grid-cols-2 mb-8">
-                  <TabsTrigger value="login" className="text-base">Login</TabsTrigger>
-                  <TabsTrigger value="register" className="text-base">Register</TabsTrigger>
-                </TabsList>
-                
-                {/* Login Form */}
-                <TabsContent value="login">
-                  <Form {...loginForm}>
-                    <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
-                      <FormField
-                        control={loginForm.control}
-                        name="username"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Username</FormLabel>
-                            <FormControl>
-                              <Input placeholder="johndoe" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={loginForm.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Password</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input 
-                                  type={showPassword ? "text" : "password"} 
-                                  placeholder="••••••••"
-                                  {...field} 
-                                />
-                                <button
-                                  type="button"
-                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                                  onClick={() => setShowPassword(!showPassword)}
-                                >
-                                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                </button>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <div className="text-right">
-                        <a href="#" className="text-sm text-secondary hover:underline">
-                          Forgot password?
-                        </a>
-                      </div>
-                      
-                      <Button 
-                        type="submit" 
-                        disabled={isSubmitting}
-                        className="w-full bg-primary hover:bg-primary/90 text-white py-6"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait...
-                          </>
-                        ) : (
-                          <>
-                            <LogIn className="mr-2 h-4 w-4" /> Sign In
-                          </>
-                        )}
-                      </Button>
-                    </form>
-                  </Form>
-                </TabsContent>
-                
-                {/* Register Form */}
-                <TabsContent value="register">
-                  <Form {...registerForm}>
-                    <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-6">
-                      <FormField
-                        control={registerForm.control}
-                        name="username"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Username</FormLabel>
-                            <FormControl>
-                              <Input placeholder="johndoe" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={registerForm.control}
-                        name="fullName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Full Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="John Doe" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={registerForm.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                              <Input type="email" placeholder="your.email@example.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={registerForm.control}
-                        name="userType"
-                        render={({ field }) => (
-                          <FormItem className="hidden">
-                            <FormControl>
-                              <Input type="hidden" {...field} />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={registerForm.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Password</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input 
-                                  type={showPassword ? "text" : "password"} 
-                                  placeholder="••••••••"
-                                  {...field} 
-                                />
-                                <button
-                                  type="button"
-                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                                  onClick={() => setShowPassword(!showPassword)}
-                                >
-                                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                </button>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={registerForm.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Confirm Password</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input 
-                                  type={showConfirmPassword ? "text" : "password"} 
-                                  placeholder="••••••••"
-                                  {...field} 
-                                />
-                                <button
-                                  type="button"
-                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                >
-                                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                </button>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <div className="text-xs text-neutral">
-                        By registering, you agree to our <a href="#" className="text-secondary hover:underline">Terms of Service</a> and <a href="#" className="text-secondary hover:underline">Privacy Policy</a>.
-                      </div>
-                      
-                      <Button 
-                        type="submit" 
-                        disabled={isSubmitting}
-                        className="w-full bg-secondary hover:bg-secondary/90 text-black py-6"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating Account...
-                          </>
-                        ) : (
-                          <>
-                            <UserPlus className="mr-2 h-4 w-4" /> Create Account
-                          </>
-                        )}
-                      </Button>
-                    </form>
-                  </Form>
-                </TabsContent>
-              </Tabs>
-            </div>
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <main className="container mx-auto px-4 py-8">
+        <div className="mx-auto max-w-md space-y-6">
+          <div className="space-y-2 text-center">
+            <h1 className="text-3xl font-bold">Welcome Back</h1>
+            <p className="text-muted-foreground">
+              {activeTab === "login" ? "Sign in to your account" : "Create a new account"}
+            </p>
           </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="register">Register</TabsTrigger>
+            </TabsList>
+            <TabsContent value="login">
+              <Form {...loginForm}>
+                <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+                  <FormField
+                    control={loginForm.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Username</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your username" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={loginForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <div className="relative">
+                          <FormControl>
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Enter your password"
+                              {...field}
+                            />
+                          </FormControl>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-2 top-1/2 -translate-y-1/2"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Signing in...
+                      </>
+                    ) : (
+                      <>
+                        <LogIn className="mr-2 h-4 w-4" />
+                        Sign In
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            </TabsContent>
+            <TabsContent value="register">
+              <Form {...registerForm}>
+                <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+                  <FormField
+                    control={registerForm.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Username</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Choose a username" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={registerForm.control}
+                    name="fullName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your full name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={registerForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="Enter your email" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={registerForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <div className="relative">
+                          <FormControl>
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Choose a password"
+                              {...field}
+                            />
+                          </FormControl>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-2 top-1/2 -translate-y-1/2"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={registerForm.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confirm Password</FormLabel>
+                        <div className="relative">
+                          <FormControl>
+                            <Input
+                              type={showConfirmPassword ? "text" : "password"}
+                              placeholder="Confirm your password"
+                              {...field}
+                            />
+                          </FormControl>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-2 top-1/2 -translate-y-1/2"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating account...
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        Create Account
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
-      
       <Footer />
     </div>
   );
-}
+};
+
+export default Login;

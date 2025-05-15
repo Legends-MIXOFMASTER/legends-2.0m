@@ -8,7 +8,7 @@ export type User = {
   username: string;
   email: string;
   fullName: string;
-  userType: string;
+  role: string;
   phone?: string;
   experience?: string;
   bio?: string;
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       try {
-        const response = await apiRequest("/api/me", {
+        const response = await apiRequest("/api/auth/me", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`
@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       
       try {
-        const response = await apiRequest("/api/login", {
+        const response = await apiRequest("/api/auth/login", {
           method: "POST",
           body: JSON.stringify({ username, password }),
           headers: {
@@ -117,7 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       
       try {
-        const response = await apiRequest("/api/register", {
+        const response = await apiRequest("/api/auth/register", {
           method: "POST",
           body: JSON.stringify(userData),
           headers: {

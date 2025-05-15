@@ -4,6 +4,7 @@ import cors from "cors";
 import { initializeDatabase } from "./db";
 import path from "path";
 import authRoutes from "./routes/auth";
+import healthRoutes from "./routes/health";
 
 // Simple log function
 const log = (message: string) => {
@@ -11,11 +12,13 @@ const log = (message: string) => {
 };
 
 // Initialize the database
-initializeDatabase();
+await initializeDatabase();
 
 const app = express();
 app.use(cors({
-  origin: "https://www.legendsofcocktails.com",
+  origin: process.env.NODE_ENV === 'production'
+    ? "https://www.legendsofcocktails.com"
+    : "http://localhost:5173",
   credentials: true
 }));
 app.use(express.json());
@@ -23,6 +26,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Register API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/health', healthRoutes);
 
 // In development, the React app will be served by Vite
 // In production, we serve the built React app as static files
@@ -81,8 +85,8 @@ app.use((req, res, next) => {
     res.status(status).json({ message });
   });
 
-  // Listen on process.env.PORT or 3000
-  const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+  // Listen on process.env.PORT or 3001
+  const port = process.env.PORT ? Number(process.env.PORT) : 3001;
   server.listen(port, () => {
     console.log(`Server running on port ${port}`);
     console.log(`Visit http://localhost:${port} to view the application`);

@@ -7,13 +7,16 @@ const dbPath = path.resolve('./database.db');
 const sqlite = new Database(dbPath);
 
 // Export a function to initialize the database (run migrations, etc.)
-export function initializeDatabase() {
+export async function initializeDatabase() {
   console.log(`Initializing database at ${dbPath}`);
   
   try {
     // Create tables if they don't exist
     
-    // Create users table
+    // Drop existing users table if it exists
+    sqlite.exec(`DROP TABLE IF EXISTS users`);
+
+    // Create users table with updated schema
     sqlite.exec(`
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,7 +25,7 @@ export function initializeDatabase() {
         email TEXT UNIQUE NOT NULL,
         full_name TEXT NOT NULL,
         phone TEXT,
-        user_type TEXT NOT NULL,
+        role TEXT NOT NULL DEFAULT 'user',
         experience TEXT,
         bio TEXT,
         is_active INTEGER DEFAULT 1,
@@ -47,6 +50,18 @@ export function initializeDatabase() {
         FOREIGN KEY (user_id) REFERENCES users(id)
       )
     `);
+
+    // Create default admin user if not exists
+    const adminUser = sqlite.prepare('SELECT * FROM users WHERE username = ?').get('admin');
+    if (!adminUser) {
+      const bcrypt = await import('bcryptjs');
+      const hashedPassword = bcrypt.hashSync('admin123', 10);
+      sqlite.prepare(`
+        INSERT INTO users (username, password, email, full_name, role)
+        VALUES (?, ?, ?, ?, ?)
+      `).run('admin', hashedPassword, 'admin@legendsofcocktails.com', 'Admin User', 'admin');
+      console.log('Created default admin user');
+    }
 
     // Create freelancers table
     sqlite.exec(`
@@ -89,15 +104,7 @@ export function initializeDatabase() {
       )
     `);
 
-    // Create subscribers table
-    sqlite.exec(`
-      CREATE TABLE IF NOT EXISTS subscribers (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email TEXT UNIQUE NOT NULL,
-        is_active INTEGER DEFAULT 1,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+
 
     // Create gallery_images table for the image gallery
     sqlite.exec(`

@@ -1,57 +1,15 @@
-import { useEffect } from "react";
-import { useAuth } from "@/hooks/use-auth";
-import { animations } from "@/utils/animations";
-
-// Import new UI components
-import { Navbar } from "@/components/ui/navbar";
-import { Hero } from "@/components/ui/hero";
-import { Section, SectionHeader, SectionGrid } from "@/components/ui/section";
-import { CardFeature, FeatureGrid } from "@/components/ui/card-feature";
-import { CallToAction } from "@/components/ui/cta";
-import { TestimonialsSlider } from "@/components/ui/testimonials";
-import { InstagramFeedContainer } from "@/components/ui/instagram-feed";
-import { Footer } from "@/components/ui/footer";
-
-// Import existing components
-import BookingSection from "@/components/BookingSection";
-import ContactSection from "@/components/ContactSection";
-
-// Import fonts
-const fontUrl = "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap";
-const iconUrl = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css";
+import { Hero } from '@/components/sections/Hero';
+import { Navbar } from '@/components/layout/Navbar';
+import { Section } from '@/components/layout/Section';
+import { SectionHeader } from '@/components/layout/SectionHeader';
+import { CallToAction } from '@/components/ui/CallToAction';
+import { FeatureGrid } from '@/components/ui/FeatureGrid';
+import { TestimonialsSlider } from '@/components/ui/TestimonialsSlider';
+import { Footer } from '@/components/layout/Footer';
+import BookingSection from '@/components/BookingSection';
+import ContactSection from '@/components/ContactSection';
 
 export default function Home() {
-  useEffect(() => {
-    // Add fonts
-    const fontLink = document.createElement("link");
-    fontLink.href = fontUrl;
-    fontLink.rel = "stylesheet";
-    document.head.appendChild(fontLink);
-
-    // Add icons
-    const iconLink = document.createElement("link");
-    iconLink.href = iconUrl;
-    iconLink.rel = "stylesheet";
-    iconLink.href = iconUrl;
-    document.head.appendChild(iconLink);
-
-    // Initialize animations
-    const initAnimations = async () => {
-      if (animations.initGSAP) {
-        await animations.initGSAP();
-      }
-      await animations.initSmoothScroll();
-    };
-
-    initAnimations();
-
-    return () => {
-      // Clean up link tags
-      document.head.removeChild(fontLink);
-      document.head.removeChild(iconLink);
-    };
-  }, []);
-
   // Navigation items
   const navItems = [
     { label: "Home", href: "/" },
@@ -66,7 +24,7 @@ export default function Home() {
   ];
 
   // Features for the service section
-  const services = [
+  const serviceItems = [
     {
       title: "Bar Services",
       description: "Comprehensive bar services for weddings, corporate events, and private parties.",
@@ -85,7 +43,7 @@ export default function Home() {
   ];
 
   // Testimonials data
-  const testimonials = [
+  const testimonialItems = [
     {
       author: "Jane Cooper",
       role: "Event Coordinator",
@@ -99,6 +57,114 @@ export default function Home() {
       role: "Marketing Director",
       company: "Brand Solutions",
       avatar: "/images/testimonials/marcus-johnson.jpg",
+      content: "Their mixology workshops were a hit with our team. The perfect blend of education and entertainment.",
+      rating: 5,
+    },
+  ];
+
+  // Footer navigation
+  const footerNavigation = navItems.map(({ label, href }) => ({ label, href }));
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-neutral-900">
+      <Navbar items={navItems} />
+
+      <Hero
+        title="Crafting Unforgettable Cocktail Experiences"
+        subtitle="From private events to corporate gatherings, we bring the art of mixology to your special occasions."
+        ctaButtons={{
+          primary: { label: "Book Now", href: "#booking" },
+          secondary: { label: "Our Services", href: "#services" },
+        }}
+      />
+
+      <Section id="about" className="bg-light py-20">
+        <SectionHeader
+          title="About Legends of Cocktails"
+          subtitle="Namibia's Premier Cocktail Service"
+          centered
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mt-12">
+          <div className="rounded-lg overflow-hidden shadow-elevated">
+            <img
+              src="/images/about/team.jpg"
+              alt="Legends of Cocktails Team"
+              className="w-full object-cover"
+            />
+          </div>
+          <div>
+            <h3 className="text-xl md:text-2xl font-display font-bold mb-4">Our Journey</h3>
+            <p className="text-neutral-700 dark:text-neutral-300 mb-6">
+              Founded in 2015, Legends of Cocktails has grown from a small passion project into Namibia's premier cocktail service.
+              We combine traditional techniques with innovative approaches to create unforgettable experiences for our clients.
+            </p>
+            <CallToAction
+              label="Learn More About Us"
+              href="/about"
+              variant="outline"
+              size="md"
+            />
+          </div>
+        </div>
+      </Section>
+
+      <Section id="services" className="bg-white dark:bg-neutral-800 py-20">
+        <SectionHeader
+          title="Our Services"
+          subtitle="Professional cocktail solutions tailored to your unique needs"
+          centered
+        />
+        <div className="mt-12">
+          <FeatureGrid features={serviceItems} columns={3} />
+        </div>
+      </Section>
+
+      <Section id="booking" className="bg-light dark:bg-neutral-900 py-20">
+        <SectionHeader
+          title="Book Your Experience"
+          subtitle="Let us help make your next event extraordinary"
+          centered
+        />
+        <div className="mt-12">
+          <BookingSection />
+        </div>
+      </Section>
+
+      <Section id="testimonials" className="bg-white dark:bg-neutral-800 py-20">
+        <SectionHeader
+          title="What Our Clients Say"
+          subtitle="Don't just take our word for it"
+          centered
+        />
+        <div className="mt-12">
+          <TestimonialsSlider testimonials={testimonialItems} />
+        </div>
+      </Section>
+
+      <Section id="contact" className="bg-light dark:bg-neutral-900 py-20">
+        <SectionHeader
+          title="Get in Touch"
+          subtitle="Have questions? We're here to help"
+          centered
+        />
+        <div className="mt-12">
+          <ContactSection />
+        </div>
+      </Section>
+
+      <Footer
+        logo="/images/logo-white.png"
+        tagline="Crafting unforgettable cocktail experiences since 2015"
+        navigation={footerNavigation}
+        contactInfo={{
+          email: "info@legendsofcocktails.com",
+          phone: "+264 81 234 5678",
+          address: "10 Independence Avenue, Windhoek, Namibia"
+        }}
+      />
+    </div>
+  );
+}
       content: "Working with Legends of Cocktails has been a game-changer for our product launches. Their mixology expertise adds a unique touch to our events.",
       rating: 5,
     },
