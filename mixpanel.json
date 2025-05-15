@@ -1,0 +1,8 @@
+{
+  "projectName": "Legends of Cocktails",
+  "trackingEnabled": true,
+  "defaultProperties": {
+    "platform": "web",
+    "environment": "development"
+  }
+}

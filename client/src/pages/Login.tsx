@@ -3,8 +3,12 @@ import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { animations } from '@/utils/animations';
+
+// Import UI components
+import { Navbar } from "@/components/ui/navbar";
+import { Footer } from "@/components/ui/footer";
+import { Section } from "@/components/ui/section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -44,6 +48,88 @@ export default function Login() {
   const [location, setLocation] = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Login form
+  const loginForm = useForm<LoginFormValues>({
+    resolver: zodResolver(loginFormSchema),
+    defaultValues: {
+      username: '',
+      password: ''
+    }
+  });
+
+  // Registration form
+  const registerForm = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerFormSchema),
+    defaultValues: {
+      username: '',
+      fullName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      userType: 'client'
+    }
+  });
+
+  // Handle login submission
+  const onLoginSubmit = async (data: LoginFormValues) => {
+    setIsSubmitting(true);
+    try {
+      await login(data.username, data.password);
+      
+      // Success toast
+      toast({
+        title: "Login Successful",
+        description: "Welcome back!",
+        variant: "default"
+      });
+      
+      // Redirect to dashboard or home
+      setLocation('/dashboard');
+    } catch (err) {
+      // Error handling
+      toast({
+        title: "Login Failed",
+        description: error || "Invalid credentials. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle registration submission
+  const onRegisterSubmit = async (data: RegisterFormValues) => {
+    setIsSubmitting(true);
+    try {
+      await registerUser({
+        username: data.username,
+        fullName: data.fullName,
+        email: data.email,
+        password: data.password,
+        userType: data.userType
+      });
+      
+      // Success toast
+      toast({
+        title: "Registration Successful",
+        description: "Your account has been created!",
+        variant: "default"
+      });
+      
+      // Switch to login tab
+      setActiveTab('login');
+    } catch (err) {
+      // Error handling
+      toast({
+        title: "Registration Failed",
+        description: error || "Could not create account. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     // Set up page title and meta description
     document.title = "Login or Register | House of Legends";
@@ -70,7 +156,7 @@ export default function Login() {
     if (error) {
       toast({
         title: "Authentication Error",
-        description: error,
+        description: error.toString(),
         variant: "destructive",
       });
     }
@@ -124,6 +210,9 @@ export default function Login() {
         title: "Registration successful",
         description: "Your account has been created. You are now logged in.",
       });
+      
+      // Redirect to the registration success page
+      setLocation('/registration-success');
     } catch (error) {
       // Error is handled by the useAuth hook and shown via the error effect
     } finally {
@@ -131,13 +220,60 @@ export default function Login() {
     }
   };
 
+  // Navigation items for the Navbar
+  const navItems = [
+    { label: "Home", href: "/" },
+    { label: "About", href: "/about" },
+    { label: "Services", href: "/services" },
+    { label: "Book", href: "/#booking" },
+  ];
+
+  // Footer navigation
+  const footerNavigation = [
+    {
+      title: "Company",
+      items: [
+        { label: "About", href: "/about" },
+        { label: "Careers", href: "/careers" },
+        { label: "Contact", href: "/contact" },
+      ],
+    },
+    {
+      title: "Services",
+      items: [
+        { label: "Bar Services", href: "/services/bar-services" },
+        { label: "Mixology Workshops", href: "/services/workshops" },
+        { label: "Menu Design", href: "/services/menu-design" },
+      ],
+    },
+    {
+      title: "Legal",
+      items: [
+        { label: "Privacy Policy", href: "/privacy-policy" },
+        { label: "Terms of Service", href: "/terms" },
+      ],
+    },
+  ];
+
+  // Initialize animations
+  useEffect(() => {
+    const initAnimations = async () => {
+      if (animations.initGSAP) {
+        await animations.initGSAP();
+      }
+      await animations.initSmoothScroll();
+    };
+
+    initAnimations();
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar logo="/images/logo.png" items={navItems} />
       
-      <main className="flex-grow flex items-center justify-center py-12 bg-gray-50">
+      <main className="flex-grow flex items-center justify-center py-12 bg-light">
         <div className="container max-w-md mx-auto px-4">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="bg-white rounded-xl shadow-card overflow-hidden">
             <div className="p-8">
               <h1 className="text-2xl font-display font-bold text-primary mb-6 text-center">Account Access</h1>
               

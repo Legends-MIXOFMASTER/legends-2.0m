@@ -119,8 +119,28 @@ export function initializeDatabase() {
   }
 }
 
+// Helper functions to provide a more flexible interface
+const run = (sql: string, params: any[] = []) => {
+  const stmt = sqlite.prepare(sql);
+  return stmt.run(...params);
+};
+
+const get = (sql: string, params: any[] = []) => {
+  const stmt = sqlite.prepare(sql);
+  return stmt.get(...params);
+};
+
+const all = (sql: string, params: any[] = []) => {
+  const stmt = sqlite.prepare(sql);
+  return stmt.all(...params);
+};
+
 // Database operations
 export const db = {
+  // Direct database access methods
+  run,
+  get,
+  all,
   // User operations
   getUser: (id: number) => {
     return sqlite.prepare('SELECT * FROM users WHERE id = ?').get(id);

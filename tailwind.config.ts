@@ -1,22 +1,4 @@
-const tailwindConfig = {
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          DEFAULT: "var(--primary)",
-          50: "rgba(10, 15, 44, 0.5)",
-        },
-        secondary: "var(--secondary)",
-        accent: "var(--accent)",
-        dark: "#0a0f2c",
-      },
-      fontFamily: {
-        inter: ['Inter', 'sans-serif'],
-      },
-    },
-  },
-};
-export default tailwindConfig;import type { Config } from "tailwindcss";
+import type { Config } from "tailwindcss";
 
 const config = {
   darkMode: ["class"],
@@ -37,19 +19,48 @@ const config = {
     },
     extend: {
       fontFamily: {
-        playfair: ['Playfair Display', 'serif'],
-        inter: ['Inter', 'sans-serif'],
+        // Fonts from our design system
+        display: ['Playfair Display', 'serif'],
+        sans: ['Inter', 'Satoshi', 'Space Grotesk', 'system-ui', 'sans-serif'],
+        body: ['Montserrat', 'sans-serif'],
       },
       colors: {
         primary: {
-          DEFAULT: "var(--primary)",
-          50: "rgba(10, 15, 44, 0.5)"
+          DEFAULT: '#321D12', // Deep Brown
+          hover: '#4B2E1C'
         },
-        secondary: "var(--secondary)",
-        accent: "var(--accent)",
-        dark: "#0a0f2c",
-        light: "#f5f5f5",
-        neutral: "#4a5568",
+        secondary: '#FFF6E9', // Cream white
+        accent: {
+          DEFAULT: '#E6A756', // Gold
+          hover: '#F0B979'
+        },
+        dark: '#1A1A1A',
+        light: '#F5F5F5',
+        neutral: '#4a5568',
+      },
+      spacing: {
+        'section-y': 'clamp(80px, 10vw, 120px)',
+        'section-x': 'clamp(16px, 5vw, 40px)',
+      },
+      borderRadius: {
+        'xl': '24px',
+        'full': '9999px',
+      },
+      boxShadow: {
+        'card': '0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08)',
+        'elevated': '0 10px 25px rgba(0,0,0,0.1), 0 5px 10px rgba(0,0,0,0.05)',
+      },
+      fontSize: {
+        'hero': 'clamp(3rem, 6vw, 6rem)',
+        'display': 'clamp(2.5rem, 5vw, 4.5rem)',
+        'heading': 'clamp(2rem, 4vw, 3.5rem)',
+        'subheading': 'clamp(1.5rem, 3vw, 2.5rem)',
+        'title': 'clamp(1.25rem, 2vw, 2rem)',
+        'body': 'clamp(1rem, 1.5vw, 1.2rem)',
+      },
+      lineHeight: {
+        'tight': '1.1',
+        'relaxed': '1.6',
       },
     },
   },

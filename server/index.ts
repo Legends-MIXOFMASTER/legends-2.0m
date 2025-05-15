@@ -1,14 +1,46 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import cors from "cors";
 import { initializeDatabase } from "./db";
+import path from "path";
+import authRoutes from "./routes/auth";
+
+// Simple log function
+const log = (message: string) => {
+  console.log(`[SERVER] ${message}`);
+};
 
 // Initialize the database
 initializeDatabase();
 
 const app = express();
+app.use(cors({
+  origin: "https://www.legendsofcocktails.com",
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Register API routes
+app.use('/api/auth', authRoutes);
+
+// In development, the React app will be served by Vite
+// In production, we serve the built React app as static files
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files from the build directory
+  app.use(express.static(path.join(process.cwd(), 'dist')));
+  
+  // Serve the React app for any route not starting with /api
+  app.get('*', (req, res) => {
+    // Skip API routes
+    if (!req.path.startsWith('/api')) {
+      res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
+    }
+  });
+} else {
+  // Development - API server only, frontend served by Vite
+  console.log('Running in development mode - API server only');
+}
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -46,29 +78,13 @@ app.use((req, res, next) => {
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
     res.status(status).json({ message });
-    throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
-
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
+  // Listen on process.env.PORT or 3000
+  const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+  server.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+    console.log(`Visit http://localhost:${port} to view the application`);
   });
 })();

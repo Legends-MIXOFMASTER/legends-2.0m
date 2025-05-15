@@ -1,0 +1,9 @@
+[defaults]
+url=https://sentry.io/
+org=legends-of-cocktails
+
+[auth]
+token=${SENTRY_AUTH_TOKEN}
+
+[project:legends-frontend]
+project=legends-frontend

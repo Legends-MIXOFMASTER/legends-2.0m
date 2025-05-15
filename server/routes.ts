@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { db } from "./db";
@@ -8,8 +8,15 @@ import {
   insertEnrollmentSchema, 
   insertFreelancerSchema, 
   insertSubscriberSchema,
-  insertUserSchema
-} from "@shared/schema";
+  insertUserSchema,
+  User,
+  Booking,
+  Contact,
+  Enrollment,
+  Freelancer,
+  Subscriber,
+  Course
+} from "./shared/schema";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 import bcrypt from "bcryptjs";
@@ -18,25 +25,12 @@ import path from "path";
 import fs from "fs";
 import jwt from "jsonwebtoken";
 
+// Import enhanced authentication middleware
+import { authenticate, generateToken, refreshToken } from "./middleware/auth";
+import { authorize } from "./middleware/authorize";
+
 // JWT Secret Key
 const JWT_SECRET = process.env.JWT_SECRET || 'houseoflegends-secret-key';
-
-// Middleware to verify JWT token
-const authenticate = (req: any, res: Response, next: Function) => {
-  const token = req.headers.authorization?.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ message: "No token provided" });
-  }
-
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({ message: "Invalid token" });
-  }
-};
 
 // Configure multer for file uploads
 const storage_config = multer.diskStorage({
@@ -79,12 +73,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password, ...userData } = req.body;
 
       // Check if user with the same username or email already exists
-      const existingUserByUsername = await storage.getUserByUsername(userData.username);
+      const existingUserByUsername = await storage.getUserByUsername(userData.username) as User | null;
       if (existingUserByUsername) {
         return res.status(400).json({ message: "Username already taken" });
       }
 
-      const existingUserByEmail = await storage.getUserByEmail(userData.email);
+      const existingUserByEmail = await storage.getUserByEmail(userData.email) as User | null;
       if (existingUserByEmail) {
         return res.status(400).json({ message: "Email already registered" });
       }
@@ -96,17 +90,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userDataWithPassword = {
         ...userData,
         password: hashedPassword,
-      };
+      } as Record<string, any>;
 
       // Validate with Zod schema
       const validatedData = insertUserSchema.parse(userDataWithPassword);
 
       // Create user
-      const user = await storage.createUser(validatedData);
+      const user = await storage.createUser(validatedData) as User;
 
       // Generate JWT token
       const token = jwt.sign(
-        { id: user.id, username: user.username, userType: user.userType },
+        { id: user.id, username: user.username, role: user.role },
         JWT_SECRET,
         { expiresIn: '7d' }
       );
@@ -121,7 +115,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           username: user.username,
           email: user.email,
           fullName: user.fullName,
-          userType: user.userType
+          role: user.role
         }
       });
     } catch (error) {
@@ -138,25 +132,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User login endpoint
   app.post("/api/login", async (req: Request, res: Response) => {
     try {
-      const { username, password } = req.body;
+      const { username, password } = req.body as { username: string; password: string };
 
-      // Validate request
+      // Validate input
       if (!username || !password) {
         return res.status(400).json({ message: "Username and password are required" });
       }
 
-      // Find user by username
-      const user = await storage.getUserByUsername(username);
+      // Get user by username
+      const user = await storage.getUserByUsername(username) as User | null;
       if (!user) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      // Check if account is active
+      // Check if user is active
       if (!user.isActive) {
-        return res.status(401).json({ message: "Account has been deactivated" });
+        return res.status(401).json({ message: "Account is inactive. Please contact support." });
       }
 
-      // Verify password
+      // Compare password
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
         return res.status(401).json({ message: "Invalid credentials" });
@@ -164,7 +158,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Generate JWT token
       const token = jwt.sign(
-        { id: user.id, username: user.username, userType: user.userType },
+        { id: user.id, username: user.username, role: user.role },
         JWT_SECRET,
         { expiresIn: '7d' }
       );
@@ -178,7 +172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           username: user.username,
           email: user.email,
           fullName: user.fullName,
-          userType: user.userType
+          role: user.role
         }
       });
     } catch (error) {
@@ -196,50 +190,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
   };
 
   // Admin: Get all users
-  app.get("/api/admin/users", authenticate, isAdmin, async (req: Request, res: Response) => {
+  app.get("/api/admin/users", authenticate, authorize(['admin']), async (req, res) => {
     try {
-      const users = await storage.getAllUsers();
-      res.status(200).json(users.map(user => ({
-        ...user,
-        password: undefined // Remove password from response
-      })));
+      const users = await storage.getAllUsers() as User[];
+      return res.status(200).json({ users: users.map((user: User) => ({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role,
+        isActive: user.isActive,
+        createdAt: user.createdAt
+      }))
+      });
     } catch (error) {
-      console.error("Get users error:", error);
-      res.status(500).json({ message: "Internal server error" });
+      console.error('Get users error:', error);
+      return res.status(500).json({ message: 'Server error' });
     }
   });
 
   // Admin: Update user status
-  app.put("/api/admin/users/:id/status", authenticate, isAdmin, async (req: Request, res: Response) => {
+  app.put("/api/admin/users/:id/status", authenticate, authorize(['admin']), async (req, res) => {
     try {
-      const userId = parseInt(req.params.id);
+      const { id } = req.params;
       const { isActive } = req.body;
-
-      await storage.updateUserStatus(userId, isActive);
-      res.status(200).json({ message: "User status updated successfully" });
+      
+      // Convert isActive to boolean if needed
+      const isActiveBoolean = typeof isActive === 'string' ? isActive === 'true' : Boolean(isActive);
+      
+      await storage.updateUserStatus(id, isActiveBoolean);
+      return res.status(200).json({ message: 'User status updated successfully' });
     } catch (error) {
-      console.error("Update user status error:", error);
-      res.status(500).json({ message: "Internal server error" });
+      console.error('Update user status error:', error);
+      return res.status(500).json({ message: 'Server error' });
     }
   });
 
-  // Course routes
-  app.get("/api/courses/:id", authenticate, async (req: Request, res: Response) => {
+  // Update course progress
+  app.post('/api/courses/:courseId/progress', authenticate, async (req, res) => {
     try {
-      const course = await storage.getCourse(req.params.id);
-      if (!course) {
-        return res.status(404).json({ message: "Course not found" });
+      const { courseId } = req.params;
+      const { progress } = req.body;
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({ message: 'Authentication required' });
       }
-      res.json(course);
+      
+      const progressNumber = typeof progress === 'string' ? parseInt(progress, 10) : progress;
+      
+      await storage.updateCourseProgress(userId, courseId, progressNumber);
+      return res.status(200).json({ message: 'Course progress updated', progress: progressNumber });
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      console.error('Update course progress error:', error);
+      return res.status(500).json({ message: 'Server error' });
     }
   });
 
-  app.post("/api/courses/:id/progress", authenticate, async (req: Request, res: Response) => {
+  // Get course details
+  app.get('/api/courses/:id', async (req, res) => {
     try {
-      const { moduleId, answers } = req.body;
-      const progress = await storage.updateCourseProgress(req.user.id, req.params.id, moduleId, answers);
+      const { id } = req.params;
+      const course = await storage.getCourse(id) as Course | null;
+      
+      if (!course) {
+        return res.status(404).json({ message: 'Course not found' });
+      }
+      
+      return res.status(200).json({ course });
+    } catch (error) {
+      console.error('Get course error:', error);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  });
+
+  app.post("/api/courses/:id/progress", authenticate, async (req: any, res: Response) => {
+    try {
+      const { moduleId } = req.body;
+      const userId = req.user?.id;
+      const courseId = req.params.id;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      // Convert moduleId to number if it's a string
+      const progressNumber = typeof moduleId === 'string' ? parseInt(moduleId, 10) : moduleId;
+      
+      const progress = await storage.updateCourseProgress(userId, courseId, progressNumber);
       res.json(progress);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -247,12 +285,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin: Update user type
-  app.put("/api/admin/users/:id/type", authenticate, isAdmin, async (req: Request, res: Response) => {
+  app.put("/api/admin/users/:id/type", authenticate, authorize(['admin']), async (req: Request, res: Response) => {
     try {
-      const userId = parseInt(req.params.id);
+      const userId = req.params.id;
       const { userType } = req.body;
 
-      if (!['client', 'staff', 'admin'].includes(userType)) {
+      if (!['user', 'admin', 'bartender'].includes(userType)) {
         return res.status(400).json({ message: "Invalid user type" });
       }
 
@@ -267,10 +305,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get current user endpoint
   app.get("/api/me", authenticate, async (req: any, res: Response) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
 
       // Get user from database
-      const user = await storage.getUser(userId);
+      const user = await storage.getUser(userId) as User | null;
 
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -299,7 +341,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/gallery/upload", authenticate, upload.single('image'), async (req: any, res: Response) => {
     try {
       // Check if user is admin or staff
-      if (req.user.userType !== 'admin' && req.user.userType !== 'staff') {
+      if (req.user?.role !== 'admin' && req.user?.role !== 'bartender') {
         // Delete the uploaded file if user is not authorized
         if (req.file) {
           fs.unlinkSync(req.file.path);
@@ -344,8 +386,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const category = req.query.category as string | undefined;
 
-      // Get images from database
-      const images = await db.getGalleryImages(category);
+      // Get images from database - use the category if it exists, otherwise get all images
+      // We need to provide the exact type that the function expects
+      const images = await db.getGalleryImages(category as string);
 
       // Format image paths for URLs
       const formattedImages = images.map((image: any) => ({
@@ -510,12 +553,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { email } = schema.parse(req.body);
 
       // Check if the email is already subscribed
-      const existingSubscriber = await storage.getSubscriberByEmail(email);
+      const existingSubscriber = await storage.getSubscriberByEmail(email) as Subscriber | null;
 
       if (existingSubscriber) {
         // If subscriber exists but is inactive, reactivate them
         if (!existingSubscriber.isActive) {
-          await storage.updateSubscriberStatus(existingSubscriber.id, true);
+          // Ensure id is a string to match the expected parameter type
+          const subscriberId = String(existingSubscriber.id);
+          await storage.updateSubscriberStatus(subscriberId, true);
           return res.status(200).json({ message: "Subscription reactivated successfully" });
         }
 
@@ -524,7 +569,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Create new subscriber
-      const subscriber = await storage.createSubscriber({ email });
+      const subscriber = await storage.createSubscriber({ email }) as Subscriber;
 
       res.status(201).json({
         message: "Subscribed successfully",
