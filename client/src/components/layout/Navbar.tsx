@@ -39,11 +39,10 @@ export function Navbar() {
                 <Link key={item.href} href={item.href}>
                   <motion.a
                     whileHover={{ y: -2 }}
-                    className={\`px-3 py-2 rounded-md text-sm font-medium \${
-                      location === item.href
+                    className={'px-3 py-2 rounded-md text-sm font-medium ' + 
+                      (location === item.href
                         ? 'text-white bg-primary-500/20'
-                        : 'text-gray-300 hover:text-white hover:bg-primary-500/10'
-                    }\`}
+                        : 'text-gray-300 hover:text-white hover:bg-primary-500/10')}
                   >
                     {item.name}
                   </motion.a>
@@ -86,19 +85,16 @@ export function Navbar() {
                 <span className="sr-only">Open main menu</span>
                 <div className="w-5 h-5 flex flex-col justify-between">
                   <span
-                    className={\`h-0.5 w-full bg-current transform transition-all duration-300 \${
-                      isOpen ? 'rotate-45 translate-y-2' : ''
-                    }\`}
+                    className={'h-0.5 w-full bg-current transform transition-all duration-300 ' +
+                      (isOpen ? 'rotate-45 translate-y-2' : '')}
                   />
                   <span
-                    className={\`h-0.5 w-full bg-current transition-all duration-300 \${
-                      isOpen ? 'opacity-0' : ''
-                    }\`}
+                    className={'h-0.5 w-full bg-current transition-all duration-300 ' +
+                      (isOpen ? 'opacity-0' : '')}
                   />
                   <span
-                    className={\`h-0.5 w-full bg-current transform transition-all duration-300 \${
-                      isOpen ? '-rotate-45 -translate-y-2' : ''
-                    }\`}
+                    className={'h-0.5 w-full bg-current transform transition-all duration-300 ' +
+                      (isOpen ? '-rotate-45 -translate-y-2' : '')}
                   />
                 </div>
               </motion.button>
@@ -120,11 +116,10 @@ export function Navbar() {
                   <Link key={item.href} href={item.href}>
                     <motion.a
                       whileHover={{ x: 4 }}
-                      className={\`block px-3 py-2 rounded-md text-base font-medium \${
-                        location === item.href
+                      className={'block px-3 py-2 rounded-md text-base font-medium ' +
+                        (location === item.href
                           ? 'text-white bg-primary-500/20'
-                          : 'text-gray-300 hover:text-white hover:bg-primary-500/10'
-                      }\`}
+                          : 'text-gray-300 hover:text-white hover:bg-primary-500/10')}
                       onClick={() => setIsOpen(false)}
                     >
                       {item.name}
